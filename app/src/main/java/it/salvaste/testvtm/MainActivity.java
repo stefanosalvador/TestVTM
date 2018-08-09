@@ -34,6 +34,8 @@ import org.oscim.utils.geom.GeomBuilder;
 
 import java.io.File;
 
+import it.salvaste.testvtm.layers.EditablePolygonLayer;
+
 public class MainActivity extends AppCompatActivity {
     MapView mMapView;
     Map mMap;
@@ -78,43 +80,27 @@ public class MainActivity extends AppCompatActivity {
             Style.Builder sb = Style.builder()
                     .strokeColor(Color.BLUE)
                     .strokeWidth(3.0f)
-                    .fillColor(Color.RED)
-                    .fillAlpha(0.2f);
-            Style style = sb.build();
+                    .fillColor(Color.BLUE)
+                    .fillAlpha(1f);
+            /*Style style = sb.build();
             GeomBuilder gb = new GeomBuilder();
             Geometry g = gb
                     .point(13.0, 46.0)
                     .point(13.0, 46.1)
                     .point(13.1, 46.1)
                     .point(13.1, 46.0)
-                    .point(13.0, 46.0).toPolygon();
-            VectorLayer vectorLayer = new VectorLayer(mMap) {
-                @Override
-                public boolean onGesture(Gesture g, MotionEvent e) {
-                    Log.e("VECTOR LAYER", "gesture ?");
-                    if(g == Gesture.LONG_PRESS) {
-                        GeoPoint geoPoint = mMap.viewport().fromScreenPoint(e.getX(), e.getY());
-                        Point point = new GeomBuilder().point(geoPoint.getLongitude(), geoPoint.getLatitude()).toPoint();
-                        for (Drawable drawable : tmpDrawables) {
-                            if (drawable.getGeometry().contains(point))
-                                Log.e("VECTOR LAYER", "found ?");
-                            return true;
-                        }
-                    }
-                    else {
-                        return super.onGesture(g, e);
-                    }
-                    return false;
-                }
-            };
-            vectorLayer.add(new PolygonDrawable(g, style));
-            //style = sb.buffer(0.02).fillColor(Color.YELLOW).build();
-            //vectorLayer.add(new PointDrawable(46.0,13.0, style));
+                    //.point(13.0, 46.0)
+                    .toPolygon();*/
+            EditablePolygonLayer vectorLayer = new EditablePolygonLayer(mMap);
+            mMap.layers().add(vectorLayer);
+            //vectorLayer.add(new PolygonDrawable(g, style));
+            GeoPoint point = new GeoPoint(46.0, 13.0);
+            Style style = sb.buffer(2).scaleZoomLevel(20).build();
+            vectorLayer.add(new PointDrawable(46.0,13.0, style));
             //vectorLayer.add(new PointDrawable(46.1,13.0, style));
             //vectorLayer.add(new PointDrawable(46.1,13.1, style));
             //vectorLayer.add(new PointDrawable(46.0,13.1, style));
             vectorLayer.update();
-            mMap.layers().add(vectorLayer);
         }
     }
 
