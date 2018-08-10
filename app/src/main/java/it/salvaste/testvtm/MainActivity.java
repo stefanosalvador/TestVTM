@@ -104,13 +104,13 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // action with ID action_refresh was selected
             case R.id.action_point:
-                mEditableVectorLayer.startEditing(EditableVectorLayer.MPOINT);
+                mEditableVectorLayer.startEditing(EditableVectorLayer.POINT);
                 break;
             case R.id.action_line:
-                mEditableVectorLayer.startEditing(EditableVectorLayer.MLINE);
+                mEditableVectorLayer.startEditing(EditableVectorLayer.LINE);
                 break;
             case R.id.action_polygon:
-                mEditableVectorLayer.startEditing(EditableVectorLayer.MPOLYGON);
+                mEditableVectorLayer.startEditing(EditableVectorLayer.POLYGON);
                 break;
             default:
                 break;

@@ -33,9 +33,9 @@ public class EditableVectorLayer extends VectorLayer {
     private Drawable mPolygonDrawing;
     private List<Coordinate> mCoordinates;
 
-    public static final int MPOINT = 1;
-    public static final int MLINE = 2;
-    public static final int MPOLYGON = 3;
+    public static final int POINT = 1;
+    public static final int LINE = 2;
+    public static final int POLYGON = 3;
 
     public EditableVectorLayer(Map map) {
         super(map);
@@ -59,6 +59,10 @@ public class EditableVectorLayer extends VectorLayer {
         mLineDrawing = null;
         mPolygonDrawing = null;
         mCoordinates = new ArrayList<>();
+        for (Drawable drawable : tmpDrawables) {
+            this.remove(drawable);
+        }
+        this.update();
     }
 
     public void stopEditing() {
@@ -81,7 +85,7 @@ public class EditableVectorLayer extends VectorLayer {
         }
         else if(g == Gesture.TAP) {
             GeoPoint geoPoint = mMap.viewport().fromScreenPoint(e.getX(), e.getY());
-            if(mGeometryType == MPOINT){
+            if(mGeometryType == POINT){
                 // draw vertex of current point
                 this.add(new PointDrawable(geoPoint.getLatitude(), geoPoint.getLongitude(), mPointStyle));
                 this.update();
@@ -99,14 +103,14 @@ public class EditableVectorLayer extends VectorLayer {
                 clickedFirstPoint = first.distance(newVertex) * mMap.getMapPosition().getScale() < 10;
                 clickedLastPoint = last.distance(newVertex) * mMap.getMapPosition().getScale() < 10;
             }
-            if(clickedLastPoint && mGeometryType == MLINE) {
+            if(clickedLastPoint && mGeometryType == LINE) {
                 stopEditing();
                 return true;
             }
-            else if(clickedLastPoint && mGeometryType == MPOLYGON) {
+            else if(clickedLastPoint && mGeometryType == POLYGON) {
                 return true;
             }
-            else if(clickedFirstPoint && mGeometryType == MPOLYGON) {
+            else if(clickedFirstPoint && mGeometryType == POLYGON) {
                 Coordinate first = mCoordinates.get(0);
                 mCoordinates.add(first);
                 stopEditing();
@@ -120,7 +124,7 @@ public class EditableVectorLayer extends VectorLayer {
                 this.add(new PointDrawable(geoPoint.getLatitude(), geoPoint.getLongitude(), mPointStyle));
                 this.update();
             }
-            if(mCoordinates.size() >= 2 && (mGeometryType == MLINE || mGeometryType == MPOLYGON)) {
+            if(mCoordinates.size() >= 2 && (mGeometryType == LINE || mGeometryType == POLYGON)) {
                 // draw open contour line
                 if(mLineDrawing != null) this.remove(mLineDrawing);
                 if(mEditingMode == false) {
@@ -132,11 +136,11 @@ public class EditableVectorLayer extends VectorLayer {
                 }
                 this.update();
             }
-            if(mCoordinates.size() >= 3 && mGeometryType == MPOLYGON) {
+            if(mCoordinates.size() >= 3 && mGeometryType == POLYGON) {
                 // draw polygon
                 ArrayList<Coordinate> tmpCoordinates = new ArrayList<>(mCoordinates);
                 if(!clickedFirstPoint)
-                  tmpCoordinates.add(tmpCoordinates.get(0));
+                    tmpCoordinates.add(tmpCoordinates.get(0));
                 if(mPolygonDrawing != null) this.remove(mPolygonDrawing);
                 mPolygonDrawing = new PolygonDrawable(mFactory.createPolygon(tmpCoordinates.toArray(new Coordinate[0])), mPolygonStyle);
                 this.add(mPolygonDrawing);
