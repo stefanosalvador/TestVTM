@@ -1,45 +1,32 @@
 package it.salvaste.testvtm;
 
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.linearref.LinearGeometryBuilder;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import org.oscim.android.MapPreferences;
 import org.oscim.android.MapView;
-import org.oscim.backend.canvas.Color;
-import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
 import org.oscim.core.Tile;
-import org.oscim.event.Gesture;
-import org.oscim.event.MotionEvent;
 import org.oscim.layers.tile.buildings.BuildingLayer;
 import org.oscim.layers.tile.vector.VectorTileLayer;
 import org.oscim.layers.tile.vector.labeling.LabelLayer;
-import org.oscim.layers.vector.VectorLayer;
-import org.oscim.layers.vector.geometries.Drawable;
-import org.oscim.layers.vector.geometries.PointDrawable;
-import org.oscim.layers.vector.geometries.PolygonDrawable;
-import org.oscim.layers.vector.geometries.Style;
 import org.oscim.map.Map;
 import org.oscim.theme.VtmThemes;
 import org.oscim.tiling.source.mapfile.MapFileTileSource;
 import org.oscim.tiling.source.mapfile.MapInfo;
-import org.oscim.utils.ColorUtil;
-import org.oscim.utils.geom.GeomBuilder;
 
 import java.io.File;
 
-import it.salvaste.testvtm.layers.EditablePolygonLayer;
+import it.salvaste.testvtm.layers.EditableVectorLayer;
 
 public class MainActivity extends AppCompatActivity {
     MapView mMapView;
     Map mMap;
     MapPreferences mPrefs;
+    EditableVectorLayer mEditableVectorLayer;
     // Name of the map file in device storage
     private static final String MAP_FILE = "alpeadria.map";
 
@@ -77,30 +64,8 @@ public class MainActivity extends AppCompatActivity {
                 mMap.setMapPosition(pos);
                 mPrefs.clear();
             }
-            Style.Builder sb = Style.builder()
-                    .strokeColor(Color.BLUE)
-                    .strokeWidth(3.0f)
-                    .fillColor(Color.BLUE)
-                    .fillAlpha(1f);
-            /*Style style = sb.build();
-            GeomBuilder gb = new GeomBuilder();
-            Geometry g = gb
-                    .point(13.0, 46.0)
-                    .point(13.0, 46.1)
-                    .point(13.1, 46.1)
-                    .point(13.1, 46.0)
-                    //.point(13.0, 46.0)
-                    .toPolygon();*/
-            EditablePolygonLayer vectorLayer = new EditablePolygonLayer(mMap);
-            mMap.layers().add(vectorLayer);
-            //vectorLayer.add(new PolygonDrawable(g, style));
-            GeoPoint point = new GeoPoint(46.0, 13.0);
-            Style style = sb.buffer(2).scaleZoomLevel(20).build();
-            vectorLayer.add(new PointDrawable(46.0,13.0, style));
-            //vectorLayer.add(new PointDrawable(46.1,13.0, style));
-            //vectorLayer.add(new PointDrawable(46.1,13.1, style));
-            //vectorLayer.add(new PointDrawable(46.0,13.1, style));
-            vectorLayer.update();
+            mEditableVectorLayer = new EditableVectorLayer(mMap);
+            mMap.layers().add(mEditableVectorLayer);
         }
     }
 
@@ -125,4 +90,31 @@ public class MainActivity extends AppCompatActivity {
         mMapView.onDestroy();
 
         super.onDestroy();
-    }}
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.geometry_type, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // action with ID action_refresh was selected
+            case R.id.action_point:
+                mEditableVectorLayer.startEditing(EditableVectorLayer.MPOINT);
+                break;
+            case R.id.action_line:
+                mEditableVectorLayer.startEditing(EditableVectorLayer.MLINE);
+                break;
+            case R.id.action_polygon:
+                mEditableVectorLayer.startEditing(EditableVectorLayer.MPOLYGON);
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+}

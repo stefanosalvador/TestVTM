@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_point"
+        android:orderInCategory="100"
+        android:title="P"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_line"
+        android:orderInCategory="200"
+        android:title="L"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_polygon"
+        android:orderInCategory="300"
+        android:title="Q"
+        app:showAsAction="always" />
+</menu>
