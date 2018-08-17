@@ -3,6 +3,7 @@ package it.salvaste.testvtm.layers;
 import android.util.Log;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
@@ -29,6 +30,7 @@ public class EditableVectorLayer extends VectorLayer {
     private Style mLineStyle;
     private Style mPolygonStyle;
     private GeometryFactory mFactory;
+    private Drawable mPointDrawing;
     private Drawable mLineDrawing;
     private Drawable mPolygonDrawing;
     private List<Coordinate> mCoordinates;
@@ -36,6 +38,14 @@ public class EditableVectorLayer extends VectorLayer {
     public static final int POINT = 1;
     public static final int LINE = 2;
     public static final int POLYGON = 3;
+
+    public interface EditableLayerListener {
+        public void onEditingStarted();
+        // or when data has been loaded
+        public void onEditingFinished(Geometry geometry);
+    }
+
+    private EditableLayerListener mListener;
 
     public EditableVectorLayer(Map map) {
         super(map);
@@ -51,6 +61,11 @@ public class EditableVectorLayer extends VectorLayer {
                 .fillColor(Color.RED)
                 .fillAlpha(0.5f).build();
         mFactory = new GeometryFactory();
+        mListener = null;
+    }
+
+    public void setEditableLayerListener(EditableLayerListener listener){
+        mListener = listener;
     }
 
     public void startEditing(int geometryType) {
@@ -59,14 +74,29 @@ public class EditableVectorLayer extends VectorLayer {
         mLineDrawing = null;
         mPolygonDrawing = null;
         mCoordinates = new ArrayList<>();
-        for (Drawable drawable : tmpDrawables) {
-            this.remove(drawable);
-        }
         this.update();
+        if (mListener != null)
+            mListener.onEditingStarted();
     }
 
     public void stopEditing() {
         mEditingMode = false;
+        if (mListener != null) {
+            Geometry geometry = null;
+            if(mGeometryType == POINT){
+                geometry = mPointDrawing.getGeometry();
+            }
+            else if(mGeometryType == LINE){
+                geometry = mLineDrawing.getGeometry();
+            }
+            else if(mGeometryType == POLYGON){
+                geometry = mPolygonDrawing.getGeometry();
+            }
+            mListener.onEditingFinished(geometry);
+        }
+        for (Drawable drawable : tmpDrawables) {
+            this.remove(drawable);
+        }
     }
 
     @Override
@@ -87,7 +117,8 @@ public class EditableVectorLayer extends VectorLayer {
             GeoPoint geoPoint = mMap.viewport().fromScreenPoint(e.getX(), e.getY());
             if(mGeometryType == POINT){
                 // draw vertex of current point
-                this.add(new PointDrawable(geoPoint.getLatitude(), geoPoint.getLongitude(), mPointStyle));
+                mPointDrawing = new PointDrawable(geoPoint.getLatitude(), geoPoint.getLongitude(), mPointStyle);
+                this.add(mPointDrawing);
                 this.update();
                 stopEditing();
                 return true;

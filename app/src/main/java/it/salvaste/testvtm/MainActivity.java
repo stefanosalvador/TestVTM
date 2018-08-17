@@ -2,9 +2,12 @@ package it.salvaste.testvtm;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 import org.oscim.android.MapPreferences;
 import org.oscim.android.MapView;
@@ -65,6 +68,18 @@ public class MainActivity extends AppCompatActivity {
                 mPrefs.clear();
             }
             mEditableVectorLayer = new EditableVectorLayer(mMap);
+            mEditableVectorLayer.setEditableLayerListener(new EditableVectorLayer.EditableLayerListener() {
+                @Override
+                public void onEditingStarted() {
+                    Log.e("TEST", "starting edit");
+                }
+
+                @Override
+                public void onEditingFinished(Geometry geometry) {
+                    Log.e("TEST", "finished edit " + geometry.getGeometryType());
+
+                }
+            });
             mMap.layers().add(mEditableVectorLayer);
         }
     }
